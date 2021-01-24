@@ -1,0 +1,1 @@
+{'Name': 'Shane Kelly', 'Amount': '234', 'Frequency': 'asdfasdf'}<class 'dict'>Shane Kelly
