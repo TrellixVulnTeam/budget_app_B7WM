@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+<style>
+    #income_list > li > div > input{
+        width:100%;
+    }
+</style>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.1/css/bulma.min.css">
+</head>
+<body>
+
+
+<div class="secion">
+    <h2 class="title has-text-centered">BUDGET APP</h2>
+    <div class="columns">
+<button type="button" onclick="openMenu(event, 'first-box')" class="button column" >Incomes</button>
+<button type="button" onclick="openMenu(event, 'second-box')" class="button column" >Outgoings</button>
+<button type="button" onclick="openMenu(event, 'third-box')" class="button column" >Savings</button>
+        </div>
+</div>
+<div class="section">
+<div class=" hidden first-box" id="first-box">
+    <div class="tile columns is-ancestor">
+        <div class="tile has-background-danger-light">
+  <div class="incoming is-grouped">
+    <form id="income_form" novalidate>
+        {{ form.csrf_token }}
+    <div class="form-field control">
+          {{ form.category.label(class_="label") }}
+          {{ form.category(class_="label") }}
+      </div>
+      <div class="form-field control">
+          {{ form.amount.label(class_="label") }}
+          {{ form.amount(class_="label") }}
+      </div>
+      <div class="form-field control">
+          {{ form.frequency.label(class_="label") }}
+          {{ form.frequency(class_="label") }}
+      </div>
+      <div class="form-field control">
+          {{ form.type.label(class_="label") }}
+          {{ form.type(class_="label") }}
+      </div>
+      <div class="form-field control">
+          {{ form.dateActive.label(class_="label") }}
+          {{ form.dateActive }}
+      </div>
+      {{ form.Income_submit(class_="button") }}
+
+  </form>
+      </div>
+            </div>
+            <div class="tile has-background-success-light">
+    <div class="income_list_div">
+      <ul id="income_list" class="level">
+
+      </ul>
+    </div>
+    </div>
+  </div>
+</div>
+
+<div class="content hidden second-box" id="second-box">
+
+
+</div>
+<div class="content hidden third-box" id="third-box">
+  <p>Add Savings Form</p>
+</div>
+</div>
+<div class="tile is-ancestor">
+    <div class="tile columns is-parent">
+        <div class="tile is-child notification is-warning is-6">
+            <div class = "transactions test">
+                <div class = "Transaction-Header">
+                    <h3>TRANSACTIONS</h3>
+                </div>
+                <form id = "trans_input">
+                    {{ form.csrf_token }}
+                    <div class="form-field">
+                    {{tran_form.trans_category.label}}
+                    {{tran_form.trans_category}}
+                    </div>
+                    <div class="form-field">
+                    {{tran_form.trans_amount.label}}
+                    {{tran_form.trans_amount}}
+                    </div>
+                    <div class="form-field">
+                    {{tran_form.typeOfTransaction.label}}
+                    {{tran_form.typeOfTransaction}}
+                    </div>
+                    <div class="form-field">
+                    {{tran_form.dateActive.label}}
+                    {{tran_form.dateActive}}
+                    </div>
+                    {{tran_form.Transaction_submit}}
+                </form>
+                <div id = "trans_list_div">
+                    <ul id="trans_list">
+
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="tile is child is-2"></div>
+        <div class="tile is-child notification is-info is-4">
+        <div class = "week-overview">
+            <div class= "overview">
+                <p>OVERVIEW</p>
+            </div>
+            <div class = totals>
+                <p>TOTAL IN</p>
+                <p>TOTAL OUT</p>
+            </div>
+
+        </div>
+
+    </div>
+    </div>
+</div>
+
+<script type="text/javascript" src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+<script>
+csrf_token = "{{ csrf_token() }}";
+window.addEventListener('DOMContentLoaded',init);
+let add_list_item = document.getElementById('submit');
+let remove_list_item = document.getElementById('remove');
+let income_list = document.getElementById('income_list');
+let outgoing_list = document.getElementById('outgoing_list');
+let trans_list = document.getElementById('trans_list')
+
+let income_dictionary = {
+  'items':[{Name: "Name: Phorest", Amount: 2000, Frequency: 'Monthly', id: 0},
+            {Name: "Name: Phorest123", Amount: 2000123, Frequency: 'Monthly123123', id: 1}],
+  'last_id': 1
+}
+
+var outgoing_dictionary = {
+  'items': [],
+}
+var savings_dictionary = {
+  'items': []
+}
+
+function remove_item(element){
+  el = element.parentNode;
+  id = el.attributes.id.value;
+  let val = id.split("-");
+  el.parentNode.removeChild(el);
+    console.log("el");
+    console.log(val[1]);
+    let data = {"ID": val[1]};
+    let jsonData = JSON.stringify(data);
+    removeCategory(jsonData);
+  income_dictionary.items = income_dictionary.items.filter(item => item['id'] !== Number(id));
+}
+function get_id(dict){
+  if(dict.items.length == 0){
+    return 0;
+  }else{
+    return Number(dict.last_id+1);
+  }
+}
+income_list.addEventListener('click', function(target){
+  let element = target.target;
+  el_class = element.className
+  if(el_class == 'btn-rmv'){
+      console.log(element);
+      console.log("RUNNING QUERY");
+    remove_item(element);
+    console.log(target);
+    console.log(element);
+  }
+});
+
+function init(){
+    const income_form = document.getElementById('income_form')
+    const outgoing_form = document.getElementById('outgoing_form')
+    const transaction_form = document.getElementById('trans_input')
+    console.log(trans_list);
+    console.log(income_list);
+    generate_list(getInfo,income_list);
+    generate_list(getTransactions,trans_list);
+    income_form.addEventListener('submit', async (e) => {
+        console.log("Clicked wrong button");
+        e.preventDefault();
+        let name = document.getElementById('category').value;
+        let amount = document.getElementById('amount').value;
+        let frequency = document.getElementById('frequency').value;
+        let type = document.getElementById('type').value;
+        let item = {
+            "Name": name,
+            "Amount": amount,
+            "Frequency": frequency,
+            "Type": type
+        };
+        let data = JSON.stringify(item);
+        const result = await fetchInfo(data);
+        generate_list(getInfo,income_list);
+    });
+
+    transaction_form.addEventListener('submit', async (e) => {
+        console.log("Clicked right button");
+       e.preventDefault();
+        let category = document.getElementById('trans_category').value;
+        let amount = document.getElementById('trans_amount').value;
+        let type = document.getElementById('typeOfTransaction').value;
+        let date = document.getElementById('TransDate').value;
+        let data = {
+            "Category": category,
+            "Amount": amount,
+            "Type": type,
+            "Date": date
+        };
+        let jdata = JSON.stringify(data);
+        console.log("Posting Data:");
+        console.log(jdata);
+        const result = await postTransaction(jdata);
+        generate_list(getTransactions, trans_list);
+    });
+}
+async function fetchInfo(data){
+    const res = await fetch('/add_income', {
+        headers : new Headers ({
+        'Content-Type': 'charset=utf-8;application/json',
+        "X-CSRFToken": csrf_token
+       }),
+        method: 'POST',
+        body: data
+    });
+    console.log(res);
+    return res.json();
+};
+async function getTransactions(){
+    const res = await fetch('/get_transactions', {
+        headers : new Headers({
+        'Content-Type': 'charset=utf-8;application/json',
+        //'Accept': 'application/json',
+        "X-CSRFToken": csrf_token
+       }),
+        method:'GET'
+    });
+    my_result = await res.json();
+    console.log("RESULTS TRANSACIONS");
+    console.log(my_result);
+    return my_result;
+}
+async function postTransaction(data){
+    const res = await fetch('/add_transaction', {
+        headers : new Headers ({
+        'Content-Type': 'charset=utf-8;application/json',
+        "X-CSRFToken": csrf_token
+       }),
+        method: 'POST',
+        body: data
+    });
+    my_result = await res.json();
+    console.log(my_result);
+}
+async function getInfo(){
+    const res = await fetch('/add_income', {
+        headers : new Headers({
+        'Content-Type': 'charset=utf-8;application/json',
+        //'Accept': 'application/json',
+        "X-CSRFToken": csrf_token
+       }),
+        method:'GET'
+    });
+    my_result = await res.json();
+    console.log("RESULTS");
+    console.log(my_result);
+    return my_result;
+
+}
+async function removeCategory(id){
+    const res = await fetch('/remove-category', {
+        headers : new Headers ({
+        'Content-Type': 'charset=utf-8;application/json',
+        "X-CSRFToken": csrf_token
+       }),
+        method: 'POST',
+        body: id
+    });
+    result = await res.json();
+    console.log(result);
+}
+
+// TO DO
+    // Duplicating entries into income list
+    // clear list before updating
+    //add functionality to remove from the list.
+async function generate_list(get_func,listToAppend){
+    var i
+    var my_obj = await get_func();
+    console.log(my_obj['data'].length);
+    if(listToAppend.getAttribute('Id') === 'income_list'){
+    listToAppend.innerHTML = '';
+    for (i=0; i<my_obj['data'].length; i++){
+        console.log(my_obj['data'][i]['Name']);
+        var list_item = document.createElement('li');
+        let string =    `<input type="text" id="name" value = ${my_obj['data'][i]['Name']}>
+                        <div class="">€ ${my_obj['data'][i]['Amount']}
+                        <div class="">${my_obj['data'][i]['Frequency']}
+        <button type="button" name="button" class='btn-rmv'>Remove</button>`;
+        //
+        list_item.innerHTML = string;
+        list_item.id = `${listToAppend.getAttribute('id')}-${my_obj["data"][i]["id"]}`;
+//        list_item.classList.add("level");
+//        list_item.classList.add("columns");
+        listToAppend.appendChild(list_item);
+    }
+    }
+    else if (listToAppend.getAttribute('id') === 'trans_list'){
+        listToAppend.innerHTML = '';
+        for(i=0; i<my_obj['data'].length; i++){
+            var list_item = document.createElement('li');
+            let string = `Category: ${my_obj['data'][i]['Category']} Amount: ${my_obj['data'][i]['Amount']} Type: ${my_obj['data'][i]['Type']} Date: ${my_obj['data'][i]['Date']}`;
+            list_item.innerHTML = string;
+            list_item.id = `${listToAppend.getAttribute('id')}-${my_obj["data"][i]["id"]}`
+            listToAppend.appendChild(list_item);
+        }
+    }
+}
+var coll = document.getElementsByClassName("collapsible-3");
+var i;
+var j;
+
+let update_visibilty = function(obj){
+  obj.classList.toggle('hidden');
+}
+
+function openMenu(evt, box){
+  var i, btns, content
+
+  btns = document.getElementsByClassName('collapsible-3');
+  content = document.getElementsByClassName('content');
+  for(i = 0; i<btns.length; i++){
+    btns[i].className = btns[i].className.replace("active","");
+  }
+  for(i = 0; i<content.length; i++){
+    content[i].style.display = 'none';
+  }
+  document.getElementById(box).style.display = 'block';
+  evt.currentTarget.className += ' active';
+
+
+}
+
+$(function() {
+  $('input[name="dateActive"]').daterangepicker({
+    singleDatePicker: true,
+    showDropdowns: true,
+    minYear: 1901,
+      local:{
+          firstDay: 1
+      },
+    maxYear: parseInt(moment().format('YYYY'),10)
+  }, function(start, end, label) {
+    console.log(start.startOf('isoWeek').format('YYYY - M - D'))
+      console.log(end.endOf('isoWeek'));
+  });
+});
+
+$(function() {
+  $('input[name="dateActive"]').daterangepicker({
+    singleDatePicker: true,
+    showDropdowns: true,
+    minYear: 1901,
+      local:{
+          firstDay: 1
+      },
+    maxYear: parseInt(moment().format('YYYY'),10)
+  }, function(start, end, label) {
+    console.log(start.startOf('isoWeek').format('YYYY - M - D'))
+      console.log(end.endOf('isoWeek'));
+  });
+});
+</script>
+
+
+</body>
+</html>

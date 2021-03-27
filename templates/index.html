@@ -1,270 +1,184 @@
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
 <head>
-<meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
 <style>
-.collapsible {
-  background-color: #777;
-  color: white;
-  cursor: pointer;
-  padding: 18px;
-  width: 100%;
-  border: none;
-  text-align: left;
-  outline: none;
-  font-size: 15px;
-}
-.collapsible-3 {
-  background-color: #777;
-  color: white;
-  cursor: pointer;
-  padding: 18px;
-  width: 30%;
-  border: none;
-  text-align: left;
-  outline: none;
-  font-size: 15px;
-}
-
-.active, .collapsible:hover {
-  background-color: #555;
-}
-.hidden{
-  display:none;
-}
-
-.content {
-  padding: 0 18px;
-  overflow: hidden;
-  background-color: #f1f1f1;
-}
+  .table_height{
+    height:500px;
+    overflow:auto;
+  }
 </style>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.1/css/bulma.min.css">
 </head>
-<body>
+    <body>
+        <div class="section">
 
-<h2>BUDGET APP</h2>
+                <p class="title has-text-centered">BUDGET APP<br>
+                <input id="overall-date" type="text" name="overallDate" value=""></p>
+            <div class="hero is-small is-primary">
+                <div class="hero-body has-text-centered">
+                    <p class="title">Categories</p>
+                    <p class="subtile">Add new categories here</p>
+                </div>
+            </div>
+        </div>
+        <div class="section">
+            <div class="hidden first-box" id="first-box">
+                <div class="tile is-ancestor columns">
+                    <div class="tile is-parent categories-section">
+                        <div class="tile is-2"></div>
+                        <div class="incoming tile is-child has-background-primary-light column is-3">
+                            <form id="category_form" novalidate>
+                                {{ form.csrf_token }}
+                                <div class="form-field ">
+                                    {{ form.category.label(class_="label") }}
+                                    {{ form.category(class_="label") }}
+                                </div>
+                                <div class="form-field ">
+                                    {{ form.amount.label(class_="label") }}
+                                    {{ form.amount(class_="label") }}
+                                </div>
+                                <div class="form-field ">
+                                    {{ form.frequency.label(class_="label") }}
+                                    {{ form.frequency(class_="label") }}
+                                </div>
+                                <div class="form-field ">
+                                    {{ form.type.label(class_="label") }}
+                                    {{ form.type(class_="label") }}
+                                </div>
+                                <div class="form-field ">
+                                    {{ form.dateActive.label(class_="label") }}
+                                    {{ form.dateActive }}
+                                </div>
+                                {{ form.Category_submit(class_="button") }}
 
-<button type="button" onclick="openMenu(event, 'first-box')" class="collapsible-3" >Incomes</button>
-<button type="button" onclick="openMenu(event, 'second-box')" class="collapsible-3" >Outgoings</button>
-<button type="button" onclick="openMenu(event, 'third-box')" class="collapsible-3" >Savings</button>
-<div class="content hidden first-box" id="first-box">
-  <div class="column incoming">
-    <form id="income_form" novalidate>
-        {{ form_test.csrf_token }}
-    <div class="form-field">
-          {{ form_test.name.label }}
-          {{ form_test.name }}
-      </div>
-      <div class="form-field">
-          {{ form_test.amount.label }}
-          {{ form_test.amount }}
-      </div>
-      <div class="form-field">
-          {{ form_test.frequency.label }}
-          {{ form_test.frequency }}
-      </div>
-      {{ form_test.submit }}
-  </form>
-    <div class="income_list_div">
-      <ul id="income_list">
-        <li id="0">Name: Phorest <br>
-            Amount: 2000 <br>
-            Frequency: Monthly
-            <button type="button" name="button" class='btn-rmv'>remove</button>
-        </li>
-        <li id="1">Name: Phorest123 <br>
-            Amount: 2000123 <br>
-            Frequency: Monthly123123
-            <button type="button" name="button" class='btn-rmv'>remove</button>
-        </li>
-      </ul>
-    </div>
-  </div>
-</div>
-<div class="content hidden second-box" id="second-box">
-  <div class="column incoming">
-    <form id="outgoing_form" novalidate>
-        {{ form.csrf_token }}
-    <div class="form-field">
-          {{ form.name1.label }}
-          {{ form.name1 }}
-      </div>
-      <div class="form-field">
-          {{ form.amount1.label }}
-          {{ form.amount1 }}
-      </div>
-      <div class="form-field">
-          {{ form.frequency1.label }}
-          {{ form.frequency1 }}
-      </div>
-      {{ form.submit }}
-  </form>
-      <div class="income_list_div">
-      <ul id="outgoing_list">
-        
-      </ul>
-    </div>
-</div>
-<div class="content hidden third-box" id="third-box">
-  <p>Add Savings Form</p>
-</div>
-<script>
-csrf_token = "{{ csrf_token() }}";
-window.addEventListener('DOMContentLoaded',init);
-let add_list_item = document.getElementById('submit');
-let remove_list_item = document.getElementById('remove');
-let income_list = document.getElementById('income_list');
-let outgoing_list = document.getElementById('outgoing_list');
+                            </form>
+                        </div>
 
-let income_dictionary = {
-  'items':[{Name: "Name: Phorest", Amount: 2000, Frequency: 'Monthly', id: 0},
-            {Name: "Name: Phorest123", Amount: 2000123, Frequency: 'Monthly123123', id: 1}],
-  'last_id': 1
-}
+                        <div class="income_list_div table_height tile is-child is-5">
+                            <table class="table has-background-link-light is-narrow is-striped" style="width:100%;height:100%;">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Amount</th>
+                                        <th>Frequency</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="category_list">
+                                    <tr>
+                                        <th><input type="text" id="name" value = "phorest"></th>
+                                        <th>4000</th>
+                                        <th>Monthly</th>
+                                        <th><button class="button" style="margin:0;">Remove</button></th>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="section">
+          <div class="hero is-small is-primary">
+              <div class="hero-body has-text-centered">
+                  <p class="title">Transactions</p>
+                  <p class="subtile">Add and edit transactions here</p>
+              </div>
+          </div>
+        </div>
+        <div class="section">
+          <div class="tile is-ancestor columns">
+            <div class="tile is-parent transaction-section">
+                <div class="tile is-2"></div>
+                <div class="tile is-child has-background-primary column is-3">
+                    <form id = "trans_input">
+                        {{ form.csrf_token }}
+                        <div class="form-field">
+                        {{tran_form.trans_category.label(class_="label")}}
+                        {{tran_form.trans_category(class_="label")}}
+                        </div>
+                        <div class="form-field">
+                        {{tran_form.trans_amount.label(class_="label")}}
+                        {{tran_form.trans_amount(class_="label")}}
+                        </div>
+                        <div class="form-field">
+                        {{tran_form.typeOfTransaction.label(class_="label")}}
+                        {{tran_form.typeOfTransaction(class_="label")}}
+                        </div>
+                        <div class="form-field">
+                        {{tran_form.dateActive.label(class_="label")}}
+                        {{tran_form.dateActive(class_="label")}}
+                        </div>
+                        {{tran_form.Transaction_submit(class_="button")}}
+                    </form>
+                </div>
+                <div class="transaction_list_div table_height tile is-child is-5">
+                    <table class="table has-background-link-light is-narrow is-striped" style="width:100%;height:500px;">
+                        <thead>
+                            <tr>
+                                <th>Category</th>
+                                <th>Amount</th>
+                                <th>Type</th>
+                                <th>Date</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody id="trans_list">
 
-var outgoing_dictionary = {
-  'items': [],
-}
-var savings_dictionary = {
-  'items': []
-}
+                        </tbody>
+                    </table>
+                </div>
+          </div>
+        </div>
+        </div>
+        <div class="section">
+          <div class="hero is-small is-primary">
+              <div class="hero-body has-text-centered">
+                  <p class="title">Overview</p>
+                  <p class="subtile">See your overview here</p>
+              </div>
+          </div>
+        </div>
+        <div class="section">
+            <div class="hidden first-box">
+                <div class="tile is-ancestor columns">
+                    <div class="tile is-parent">
+                        <div class="tile is-2"></div>
+                        <div class="tile is-child has-background-primary-light column is-6">
+                          <div class="field is-grouped is-grouped-multiline" id="overview">
+                            <div class="control">
+                              <div class="tags has-addons">
+                                <span class="tag is-dark is-size-3">Balance:</span>
+                                <span class="tag  is-size-3">x</span>
+                              </div>
+                            </div>
+                            <hr>
+                            <div class="control">
+                              <div class="tags has-addons">
+                                <span class="tag is-dark is-size-3">Total Incoming:</span>
+                                <span class="tag is-size-3">1_000_000</span>
+                              </div>
+                            </div>
+                            <div class="control">
+                              <div class="tags has-addons">
+                                <span class="tag is-dark is-size-3">Total Outgoing:</span>
+                                <span class="tag is-size-3">9_000</span>
+                              </div>
+                            </div>
+                        </div>
+                        <div class="tile is-child is-5">
 
-function remove_item(element){
-  el = element.parentNode;
-  id = el.attributes.id.value;
-  el.parentNode.removeChild(el);
-  income_dictionary.items = income_dictionary.items.filter(item => item['id'] !== Number(id));
-}
-function get_id(dict){
-  if(dict.items.length == 0){
-    return 0;
-  }else{
-    return Number(dict.last_id+1);
-  }
-}
-income_list.addEventListener('click', function(target){
-  let element = target.target;
-  el_class = element.className
-  if(el_class == 'btn-rmv'){
-    remove_item(element);
-  }
-});
-
-function init(){
-    const income_form = document.getElementById('income_form')
-    const outgoing_form = document.getElementById('outgoing_form')
-    
-    income_form.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        let name = document.getElementById('name').value;
-        let amount = document.getElementById('amount').value;
-        let frequency = document.getElementById('frequency').value;
-        let item = {
-            "Name": name,
-            "Amount": amount,
-            "Frequency": frequency
-        };
-        let data = JSON.stringify(item);
-        console.log('DATA:::')
-        console.log(data);
-        console.log(typeof data);
-        const result = await fetchInfo(data);
-        console.log('THIS IS THE RESULT')
-        console.log(result);
-    });
-    outgoing_form.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        let name = document.getElementById('name1').value;
-        let amount = document.getElementById('amount1').value;
-        let frequency = document.getElementById('frequency1').value;
-        let item = {
-            "Name": name,
-            "Amount": amount,
-            "Frequency": frequency
-        };
-        let data = JSON.stringify(item);
-        console.log('DATA:::')
-        console.log(data);
-        console.log(typeof data);
-        const result = await fetchInfo(data);
-        console.log('THIS IS THE RESULT')
-        console.log(result);
-        console.log('-------------');
-        console.log('new get fetch request');
-        const get_result = await getInfo();
-        console.log(get_result)
-        //document.getElementById('count').textContent = get_result;
-        generate_list(get_result,outgoing_list);
-    })
-}
-async function fetchInfo(data){
-    const res = await fetch('/add_income', {
-        headers : new Headers ({ 
-        'Content-Type': 'charset=utf-8;application/json',
-        "X-CSRFToken": csrf_token
-       }),
-        method: 'POST',
-        body: data
-    });
-    console.log('RES');
-    console.log(res);
-    console.log('return_result');
-    return res.json();
-};
-    
-async function getInfo(){
-    const res = await fetch('/add_income', {
-        headers : new Headers({ 
-        'Content-Type': 'charset=utf-8;application/json',
-        //'Accept': 'application/json',
-        "X-CSRFToken": csrf_token
-       }),
-        method:'GET'
-    });
-    my_result = await res.json();
-    return my_result;
-    
-}
-    
-function generate_list(my_obj,listToAppend){
-    console.log('I AM HERE');
-    var i
-    console.log(my_obj['data'].length);
-    for (i=0; i<my_obj['data'].length; i++){
-        console.log(my_obj['data'][i]['Name']);
-    
-        var list_item = document.createElement('li');
-        let string = `Name: ${my_obj['data'][i]['Name']} <br> Amount: ${my_obj['data'][i]['Amount']} <br> Frequency: ${my_obj['data'][i]['Frequency']}
-            <button type="button" name="button" class='btn-rmv'>remove</button>`;
-        list_item.innerHTML = string;
-        listToAppend.appendChild(list_item);
-    };
-}
-var coll = document.getElementsByClassName("collapsible-3");
-var i;
-var j;
-
-let update_visibilty = function(obj){
-  obj.classList.toggle('hidden');
-}
-
-function openMenu(evt, box){
-  var i, btns, content
-
-  btns = document.getElementsByClassName('collapsible-3');
-  content = document.getElementsByClassName('content');
-  for(i = 0; i<btns.length; i++){
-    btns[i].className = btns[i].className.replace("active","");
-  }
-  for(i = 0; i<content.length; i++){
-    content[i].style.display = 'none';
-  }
-  document.getElementById(box).style.display = 'block';
-  evt.currentTarget.className += ' active';
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
 
-}
-</script>
-
-</body>
+        <script type="text/javascript" src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"></script>
+        <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+        <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+        <script src="{{ url_for('static', filename='app.js') }}"></script>
+    </body>
 </html>

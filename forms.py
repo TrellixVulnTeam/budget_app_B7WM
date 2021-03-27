@@ -1,12 +1,12 @@
 from flask_wtf import FlaskForm
 
-from wtforms import StringField, TextField,SubmitField, IntegerField
+from wtforms import StringField,DateField, TextField,SubmitField, IntegerField, SelectField
 from wtforms.validators import DataRequired, Length
 
 
 class income_form(FlaskForm):
-    name = StringField(
-        'Name'
+    category = StringField(
+        'Category'
     )
     amount = IntegerField(
         'Amount'
@@ -14,7 +14,14 @@ class income_form(FlaskForm):
     frequency = StringField(
         'Frequency'
     )
-    submit = SubmitField('Add Income')
+    type = StringField(
+        'Type'
+    )
+    dateActive = DateField(
+        'StartDate',
+        format='%d-%m-%Y'
+    )
+    Category_submit = SubmitField('Add Category')
 
 
 class outgoing_form(FlaskForm):
@@ -28,3 +35,26 @@ class outgoing_form(FlaskForm):
         'Frequency'
     )
     submit = SubmitField('Add Income')
+    select = SelectField(
+        'select',
+        choices=['One', 'Two', 'Three'],
+        id='MyID'
+    )
+
+class transaction_form(FlaskForm):
+    trans_category = SelectField(
+        'Category'
+    )
+    typeOfTransaction = SelectField(
+        'In/Out',
+        choices=['Income','Outgoing']
+    )
+    trans_amount = IntegerField(
+        'Amount'
+    )
+    dateActive = DateField(
+        'Date',
+        format='%Y-%m-%d',
+        id='TransDate'
+    )
+    Transaction_submit = SubmitField('Add Transaction')
