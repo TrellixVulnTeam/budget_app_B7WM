@@ -1,1 +1,0 @@
-{'Category': 'test', 'Amount': '2344283', 'Type': 'Outgoing', 'Date': '02/01/2021'}

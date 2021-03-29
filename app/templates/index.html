@@ -1,0 +1,224 @@
+{% extends "base.html" %}
+{% block content %}
+        <div class="section">
+
+                <p class="title has-text-centered">BUDGET APP<br>
+                  <a href = "{{ url_for('logout') }}"> Logout </a>
+                  <p> Welcome {{current_user.username }} Your ID is {{ current_user.id }}</p>
+                <input id="overall-date" type="text" name="overallDate" value=""></p>
+            <div class="hero is-small is-primary">
+                <div class="hero-body has-text-centered">
+                    <p class="title">Categories</p>
+                    <p class="subtile">Add new categories here</p>
+                </div>
+            </div>
+        </div>
+        <div class="section">
+            <div class="hidden first-box" id="first-box">
+                <div class="tile is-ancestor columns">
+                    <div class="tile is-parent categories-section">
+                        <div class="tile is-2"></div>
+                        <div class="incoming tile is-child has-background-primary-light column is-3">
+                            <form id="category_form" novalidate>
+                                {{ form.csrf_token }}
+                                <div class="form-field ">
+                                    {{ form.category.label(class_="label") }}
+                                    {{ form.category(class_="label") }}
+                                </div>
+                                <div class="form-field ">
+                                    {{ form.amount.label(class_="label") }}
+                                    {{ form.amount(class_="label") }}
+                                </div>
+                                <div class="form-field ">
+                                    {{ form.frequency.label(class_="label") }}
+                                    {{ form.frequency(class_="label") }}
+                                </div>
+                                <div class="form-field ">
+                                    {{ form.type.label(class_="label") }}
+                                    {{ form.type(class_="label") }}
+                                </div>
+                                <div class="form-field ">
+                                    {{ form.dateActive.label(class_="label") }}
+                                    {{ form.dateActive }}
+                                </div>
+                                {{ form.Category_submit(class_="button") }}
+
+                            </form>
+                        </div>
+
+                        <div class="income_list_div table_height tile is-child is-5">
+                            <table class="table has-background-link-light is-narrow is-striped" style="width:100%;height:100%;">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Amount</th>
+                                        <th>Frequency</th>
+                                        <th></th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="category_list">
+                                    <tr>
+                                        <th><input type="text" id="name" value = "phorest"></th>
+                                        <th>4000</th>
+                                        <th>Monthly</th>
+                                        <th><button class="button" style="margin:0;">Remove</button></th>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="section">
+          <div class="hero is-small is-primary">
+              <div class="hero-body has-text-centered">
+                  <p class="title">Transactions</p>
+                  <p class="subtile">Add and edit transactions here</p>
+              </div>
+          </div>
+        </div>
+        <div class="section">
+          <div class="tile is-ancestor columns">
+            <div class="tile is-parent transaction-section">
+                <div class="tile is-2"></div>
+                <div class="tile is-child has-background-primary column is-3">
+                    <form id = "trans_input">
+                        {{ form.csrf_token }}
+                        <div class="form-field">
+                        {{tran_form.trans_category.label(class_="label")}}
+                        {{tran_form.trans_category(class_="label")}}
+                        </div>
+                        <div class="form-field">
+                        {{tran_form.trans_amount.label(class_="label")}}
+                        {{tran_form.trans_amount(class_="label")}}
+                        </div>
+                        <div class="form-field">
+                        {{tran_form.typeOfTransaction.label(class_="label")}}
+                        {{tran_form.typeOfTransaction(class_="label")}}
+                        </div>
+                        <div class="form-field">
+                        {{tran_form.dateActive.label(class_="label")}}
+                        {{tran_form.dateActive(class_="label")}}
+                        </div>
+                        {{tran_form.Transaction_submit(class_="button")}}
+                    </form>
+                </div>
+                <div class="transaction_list_div table_height tile is-child is-5">
+                    <table class="table has-background-link-light is-narrow is-striped" style="width:100%;height:500px;">
+                        <thead>
+                            <tr>
+                                <th>Category</th>
+                                <th>Amount</th>
+                                <th>Type</th>
+                                <th>Date</th>
+                                <th></th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody id="trans_list">
+
+                        </tbody>
+                    </table>
+                </div>
+          </div>
+        </div>
+        </div>
+        <div class="section">
+          <div class="hero is-small is-primary">
+              <div class="hero-body has-text-centered">
+                  <p class="title">Overview</p>
+                  <p class="subtile">See your overview here</p>
+              </div>
+          </div>
+        </div>
+        <div class="section">
+            <div class="hidden first-box">
+                <div class="tile is-ancestor columns">
+                    <div class="tile is-parent">
+                        <div class="tile is-3"></div>
+                        <div class="tile is-child has-background-primary-light column is-6">
+                          <div class="field is-grouped is-grouped-multiline" id="overview">
+                            <div class="control">
+                              <div class="tags has-addons">
+                                <span class="tag is-dark is-size-3">Balance:</span>
+                                <span class="tag  is-size-3">x</span>
+                              </div>
+                            </div>
+                            <hr>
+                            <div class="control">
+                              <div class="tags has-addons">
+                                <span class="tag is-dark is-size-3">Total Incoming:</span>
+                                <span class="tag is-size-3">1_000_000</span>
+                              </div>
+                            </div>
+                            <div class="control">
+                              <div class="tags has-addons">
+                                <span class="tag is-dark is-size-3">Total Outgoing:</span>
+                                <span class="tag is-size-3">9_000</span>
+                              </div>
+                            </div>
+                        </div>
+                      </div>
+                    </div>
+            </div>
+        </div>
+      </div>
+      <div class="section">
+        <div class="tile is-ancestor">
+          <div class="tile is-parent">
+            <div class="tile is-parent">
+              <div class="tile is-child is-2">
+              </div>
+              <div class="tile is-child is-3 has-background-danger-light">
+                <div class="field">
+                  <input id="switchLarge" type="checkbox" name="switchLarge" class="over-view-switch switch is-large">
+                  <label for="switchLarge">Switch large</label>
+                </div>
+                <div class="field">
+                  <input id="switchLarge1" type="checkbox" name="switchLarge1" class="over-view-switch switch is-large">
+                  <label for="switchLarge1">Switch large</label>
+                </div>
+                <div class="field">
+                  <input id="switchLarge2" type="checkbox" name="switchLarge2" class="over-view-switch switch is-large">
+                  <label for="switchLarge2">Switch large</label>
+                </div>
+                <div class="field">
+                  <input id="switchLarge3" type="checkbox" name="switchLarge3" class="over-view-switch switch is-large">
+                  <label for="switchLarge3">Switch large</label>
+                </div>
+              </div>
+              <div class="overview-targets table_height tile is-child is-5">
+                  <table class="table has-background-link-light is-narrow is-striped" style="width:100%;height:500px;">
+                      <thead>
+                          <tr>
+                              <th>Category</th>
+                              <th>Expected</th>
+                              <th>Actual</th>
+                              <th>Balance</th>
+                          </tr>
+                      </thead>
+                      <tbody id="overview-targets-table-body">
+                          <tr>
+                            <td>NewItem</td>
+                            <td>500</td>
+                            <td>450</td>
+                            <td>50</td>
+                          </tr>
+                      </tbody>
+                  </table>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+
+        <script type="text/javascript" src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"></script>
+        <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+        <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+        <script src="{{ url_for('static', filename='app.js') }}"></script>
+{% endblock %}

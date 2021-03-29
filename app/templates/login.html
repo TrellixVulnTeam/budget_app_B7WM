@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block content %}
+    <section>
+      <div class="container">
+        <div class="column is-half is-offset-one-quarter">
+          <div class="tile is-ancestor">
+            <div class="tile is-vertical is-parent">
+              <div class="tile is-child notification is-primary">
+
+
+          <h1 class="title">Sign In</h1>
+          </div>
+          {% with messages = get_flashed_messages() %}
+             {% if messages %}
+             <ul>
+                 {% for message in messages %}
+                 <li><p class="help is-danger has-text-centered is-italic is-size-6">{{ message }}</p></li>
+                 {% endfor %}
+             </ul>
+             {% endif %}
+             {% endwith %}
+          <div class="tile is-child has-background-primary-light">
+
+
+          <div class="content" style="padding:10px;">
+          <form action="" method="post" novalidate>
+            {{ form.hidden_tag() }}
+            <p>
+                {{ form.username.label }}<br>
+                {{ form.username(size=32) }}<br>
+                {% for error in form.username.errors %}
+                <p class="help is-danger is-italic is-size-6">[{{ error }}]</p>
+                {% endfor %}
+              </p>
+              <p>
+                {{ form.password.label }}<br>
+                {{ form.password(size=32) }}<br>
+                {% for error in form.password.errors %}
+                <p class="help is-danger is-italic is-size-6">[{{ error }}]</p>
+                {% endfor %}
+              </p>
+          <p>{{ form.remember_me() }} {{ form.remember_me.label }}</p>
+          <p>{{ form.submit() }}</p>
+        </form>
+                  </div>
+      </div>
+              </div>
+              </div>
+            </div>
+          </div>
+    </section>
+{% endblock %}
