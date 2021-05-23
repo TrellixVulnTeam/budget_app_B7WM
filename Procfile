@@ -1,1 +1,1 @@
-web: gunicorn app:budget
+web: gunicorn app:budget.pyg
