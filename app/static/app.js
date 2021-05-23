@@ -75,7 +75,6 @@ function init(){
 };
 $('#TransDate').daterangepicker({
     "singleDatePicker": true,
-    "timePicker": true,
     "startDate": moment().format("MM/DD/YYYY")
 }, function(start, end, label) {
   console.log('New date range selected: ' + start.format('YYYY-MM-DD') + ' to ' + end.format('YYYY-MM-DD') + ' (predefined range: ' + label + ')');
@@ -144,6 +143,7 @@ async function generate_list(get_func,listToAppend){
     var i
     var my_obj = await get_func();
     console.log(my_obj['data'].length);
+    console.log(my_obj)
     if(listToAppend.getAttribute('Id') === 'category_list'){
     listToAppend.innerHTML = '';
     for (i=0; i<my_obj['data'].length; i++){
@@ -158,8 +158,8 @@ async function generate_list(get_func,listToAppend){
         list_item.innerHTML = string;
         list_item.id = `${listToAppend.getAttribute('id')}-${my_obj["data"][i]["id"]}`;
         listToAppend.appendChild(list_item);
-    }
-    }
+        generateToggles(my_obj['data'])
+    }}
     else if (listToAppend.getAttribute('id') === 'trans_list'){
         listToAppend.innerHTML = '';
         for(i=0; i<my_obj['data'].length; i++){
@@ -170,11 +170,13 @@ async function generate_list(get_func,listToAppend){
             }else{
               second_item = 'Income'
             };
+            transaction_date = moment(new Date(my_obj['data'][i]['Date']).toISOString().split('T')[0]).format("MM/DD/YYYY")
+
             let string =
             `<th><input type="text" id="transaction-name-${my_obj["data"][i]["id"]}" value = ${my_obj['data'][i]['Category']}></th>
              <th><input type="text" id="transaction-amount-${my_obj["data"][i]["id"]}" value = ${my_obj['data'][i]['Amount']}></th>
             <th><select id="transaction-type-${my_obj["data"][i]["id"]}"><option value = ${my_obj['data'][i]['Type']}>${my_obj['data'][i]['Type']}</option><option value=${second_item}>${second_item}</option></th>
-            <th><input id="transaction-date-${my_obj["data"][i]["id"]}" class="transaction_record_calendar" type="text" value= "${my_obj['data'][i]['Date']}"></th>
+            <th><input id="transaction-date-${my_obj["data"][i]["id"]}" class="transaction_record_calendar" type="text" value=${transaction_date}></th>
             <th><button type="button" name="button" class='btn-upd button is-success'><i class="gg-add-r"></i></button></th>
             <th><button type="button" name="button" class='btn-rmv button is-danger'><i class="gg-remove-r"></i></button></th>`;
             list_item.id = `${listToAppend.getAttribute('id')}-${my_obj["data"][i]["id"]}`
@@ -208,12 +210,34 @@ async function generate_list(get_func,listToAppend){
     }
 }
 
+function generateToggles(data){
+  console.log("GENERATE TOGGLE");
+  console.log(data.length);
+  toggle_list.innerHTML='';
+
+  for(i=0;i<data.length;i++){
+    new_toggle = document.createElement('div');
+    new_toggle.className = 'field';
+    console.log("TOGGLE NAME")
+    console.log(data[i]['Name'])
+  toggle_list_string = `
+    <div class="field">
+      <input id="switchLarge-${data[i]['id']}" type="checkbox" name="switchLarge-${data[i]['id']}" class="over-view-switch switch is-large">
+      <label for="switchLarge-${data[i]['id']}">${data[i]['Name']}</label>
+    </div>
+  `
+  new_toggle.innerHTML = toggle_list_string;
+  toggle_list.appendChild(new_toggle);
+}
 document.querySelectorAll('.over-view-switch').forEach(item => {
   item.addEventListener('click', event => {
     switchbox = event.target;
     console.log(switchbox.checked);
   });
 })
+}
+
+
 
 async function getCategories(){
     const res = await fetch('/add_income', {
@@ -293,9 +317,19 @@ category_list.addEventListener('click', function(target){
   console.log("HERE");
   if(element.classList.contains('btn-rmv') || element.parentNode.classList.contains('btn-rmv')){
     console.log("CHECK RETURNED TRUE");
-    remove_item(element);
+    if (element.parentNode.classList.contains('btn-rmv')){
+      remove_category(element.parentNode)
+    }else{
+      remove_category(element)
+    }
   } else if (element.classList.contains('btn-upd') || element.parentNode.classList.contains('btn-upd')){
-    update_item(element)
+    if (element.parentNode.classList.contains('btn-upd')){
+      console.log("clicked inner icon - but okay")
+    update_category(element.parentNode)
+    }else{
+      console.log("clicked outside icon - but okay")
+    update_category(element)
+  }
   }
 });
 
@@ -309,15 +343,15 @@ trans_list.addEventListener('click', function(target){
   if(element.classList.contains('btn-rmv') || element.parentNode.classList.contains('btn-rmv')){
     console.log("CHECK RETURNED TRUE");
     if (element.parentNode.classList.contains('btn-rmv')){
-      remove_item(element.parentNode)
+      remove_transaction(element.parentNode)
     }else{
-      remove_item(element);
+      remove_transaction(element);
     }
   } else if (element.classList.contains('btn-upd') || element.parentNode.classList.contains('btn-upd')){
     if(element.parentNode.classList.contains('btn-upd')){
       update_transaction(element.parentNode)
     }else{
-        update_transaction(element)
+      update_transaction(element)
     }
   }
   });
@@ -332,7 +366,36 @@ trans_list.addEventListener('click', function(target){
       });
   });
 
-function remove_item(element){
+// ASYNC REMOVE FUNCTIONS
+async function removeCategory(id){
+    const res = await fetch('/remove-category', {
+        headers : new Headers ({
+        'Content-Type': 'charset=utf-8;application/json',
+        "X-CSRFToken": csrf_token
+       }),
+        method: 'POST',
+        body: id
+    });
+    result = await res.json();
+    console.log(result);
+}
+
+async function removeTransaction(id){
+    const res = await fetch('/remove-transaction', {
+        headers : new Headers ({
+        'Content-Type': 'charset=utf-8;application/json',
+        "X-CSRFToken": csrf_token
+       }),
+        method: 'POST',
+        body: id
+    });
+    result = await res.json();
+    console.log(result);
+}
+
+//UI REMOVE FUNCTIONS
+
+function remove_category(element){
   console.log(element);
   el = element.parentNode.parentNode;
   console.log(el);
@@ -346,56 +409,21 @@ function remove_item(element){
     removeCategory(jsonData);
 }
 
-function update_item(element){
+function remove_transaction(element){
+  console.log(element);
   el = element.parentNode.parentNode;
-  record_to_update = el.attributes.id.value.split('-')[1]
-  new_cat_name = document.getElementById('category-name-' + record_to_update);
-  new_cat_amount = document.getElementById('category-amount-' + record_to_update)
-  new_cat_frequency = document.getElementById('category-frequency-' + record_to_update)
-  console.log(new_cat_name.value);
-  console.log(new_cat_amount.value);
-  console.log(new_cat_frequency.value);
-  item = {
-    "Id": record_to_update,
-    "Name": new_cat_name.value,
-    "Amount": new_cat_amount.value,
-    "Frequency": new_cat_frequency.value
-  }
-  json_data_for_update = JSON.stringify(item);
-  console.log(json_data_for_update);
-  updateCategory(json_data_for_update);
+  console.log(el);
+  id = el.attributes.id.value;
+  let val = id.split("-");
+  el.parentNode.removeChild(el);
+    console.log("el");
+    console.log(val[1]);
+    let data = {"ID": val[1]};
+    let jsonData = JSON.stringify(data);
+    removeTransaction(jsonData);
 }
 
-function update_transaction(element){
-  el = element.parentNode.parentNode;
-  record_to_update = el.attributes.id.value.split('-')[1]
-  new_transaction_name = document.getElementById('transaction-name-' + record_to_update);
-  new_transaction_amount = document.getElementById('transaction-amount-' + record_to_update)
-  new_transaction_type = document.getElementById('transaction-type-' + record_to_update)
-  item = {
-    "Id": record_to_update,
-    "Name": new_transaction_name.value,
-    "Amount": new_transaction_amount.value,
-    "Type": new_transaction_type.value,
-    "Date": UpdateTransactionDate
-  }
-  json_data_for_update = JSON.stringify(item);
-  console.log(json_data_for_update);
-  updateTransaction(json_data_for_update);
-}
-
-async function removeCategory(id){
-    const res = await fetch('/remove-transaction', {
-        headers : new Headers ({
-        'Content-Type': 'charset=utf-8;application/json',
-        "X-CSRFToken": csrf_token
-       }),
-        method: 'POST',
-        body: id
-    });
-    result = await res.json();
-    console.log(result);
-}
+// ASYNC UPDATE FUNCTIONS
 
 async function updateCategory(data){
   const res = await fetch('/update_category', {
@@ -422,3 +450,45 @@ async function updateTransaction(data){
     result = await res.json();
     console.log(result);
     }
+
+// UI UPDATE FUNCTIONS
+
+function update_category(element){
+  el = element.parentNode.parentNode;
+  record_to_update = el.attributes.id.value.split('-')[1]
+  new_cat_name = document.getElementById('category-name-' + record_to_update);
+  new_cat_amount = document.getElementById('category-amount-' + record_to_update)
+  new_cat_frequency = document.getElementById('category-frequency-' + record_to_update)
+  console.log(new_cat_name.value);
+  console.log(new_cat_amount.value);
+  console.log(new_cat_frequency.value);
+  item = {
+    "Id": record_to_update,
+    "Name": new_cat_name.value,
+    "Amount": new_cat_amount.value,
+    "Frequency": new_cat_frequency.value
+  }
+  json_data_for_update = JSON.stringify(item);
+  console.log(json_data_for_update);
+  updateCategory(json_data_for_update);
+}
+
+function update_transaction(element){
+  el = element.parentNode.parentNode;
+  record_to_update = el.attributes.id.value.split('-')[1]
+  new_transaction_name = document.getElementById('transaction-name-' + record_to_update);
+  new_transaction_amount = document.getElementById('transaction-amount-' + record_to_update)
+  new_transaction_type = document.getElementById('transaction-type-' + record_to_update)
+  new_transaction_date = document.getElementById('transaction-date-' + record_to_update)
+  item = {
+    "Id": record_to_update,
+    "Name": new_transaction_name.value,
+    "Amount": new_transaction_amount.value,
+    "Type": new_transaction_type.value,
+    "Date": new_transaction_date.value
+    //"Date": new Date(new_transaction_date.value).toISOString().split('T')[0]
+  }
+  json_data_for_update = JSON.stringify(item);
+  console.log(json_data_for_update);
+  updateTransaction(json_data_for_update);
+}

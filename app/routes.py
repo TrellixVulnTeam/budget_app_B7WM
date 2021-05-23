@@ -137,6 +137,7 @@ def get_overview():
     overview = Transactions.query.with_entities(Transactions.type, func.sum(Transactions.amount)).filter(
         Transactions.date >= dates['start'],
         Transactions.date <= dates['end'],
+        Transactions.archived == 'n',
         Transactions.user_id == current_user.id).group_by(Transactions.type).all()
     return_object = {}
     for item in overview:
@@ -174,7 +175,7 @@ def update_transaction():
         Transactions.category: data['Name'],
         Transactions.amount: data['Amount'],
         Transactions.type: data['Type'],
-        Transactions.date: datetime.strptime(data['Date'], '%Y-%m-%d').date()
+        Transactions.date: datetime.strptime(data['Date'], '%m/%d/%Y').date()
     })
     db.session.commit()
     return {"success": "Successfully Updated"}
