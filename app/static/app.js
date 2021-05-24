@@ -137,6 +137,8 @@ $('#overall-date').daterangepicker({
   generate_list(getOverview, overview);
 });
 
+//FIX THIS SO IT ISN'T PUBLIC
+let toggle_object = {};
 
 
 async function generate_list(get_func,listToAppend){
@@ -148,6 +150,11 @@ async function generate_list(get_func,listToAppend){
     listToAppend.innerHTML = '';
     for (i=0; i<my_obj['data'].length; i++){
         console.log(my_obj['data'][i]['Name']);
+        //let cat_name = ;
+        toggle_object[my_obj['data'][i]['Name']] = {
+          "expected": my_obj['data'][i]['Amount'],
+          "total": 0
+        }
         var list_item = document.createElement('tr');
         let string =
         `<th><input type="text" id="category-name-${my_obj["data"][i]["id"]}" value = ${my_obj['data'][i]['Name']}></th>
@@ -167,8 +174,10 @@ async function generate_list(get_func,listToAppend){
             var second_item = ''
             if (my_obj['data'][i]['Type'] === 'Income'){
               second_item = 'Outgoing'
+              toggle_object[my_obj['data'][i]['Category']].total+=my_obj['data'][i]['Amount'];
             }else{
               second_item = 'Income'
+              toggle_object[my_obj['data'][i]['Category']].total+=my_obj['data'][i]['Amount']*-1;
             };
             transaction_date = moment(new Date(my_obj['data'][i]['Date']).toISOString().split('T')[0]).format("MM/DD/YYYY")
 
@@ -222,7 +231,7 @@ function generateToggles(data){
     console.log(data[i]['Name'])
   toggle_list_string = `
     <div class="field">
-      <input id="switchLarge-${data[i]['id']}" type="checkbox" name="switchLarge-${data[i]['id']}" class="over-view-switch switch is-large">
+      <input id="switchLarge-${data[i]['id']}" type="checkbox" name="switchLarge-${data[i]['Name']}" class="over-view-switch switch is-large">
       <label for="switchLarge-${data[i]['id']}">${data[i]['Name']}</label>
     </div>
   `
@@ -233,11 +242,43 @@ document.querySelectorAll('.over-view-switch').forEach(item => {
   item.addEventListener('click', event => {
     switchbox = event.target;
     console.log(switchbox.checked);
+    console.log(switchbox.name.split("-")[1]);
+    console.log(toggle_object[switchbox.name.split("-")[1]])
+    category = switchbox.name.split("-")[1]
+    if(switchbox.checked){
+      generate_overview_table(category, toggle_object[category])
+    }else{
+    remove_overview_row(category)
+  }
   });
 })
 }
 
-
+function generate_overview_table(category,data){
+  console.log(data);
+  let overview_table = document.getElementById("overview-targets-table-body");
+  let new_row = document.createElement("tr");
+  new_row.id=`overview-row-${category}`
+  let total_field = 0
+  if(data['total'] <= 0){
+    total_field = data['total']
+  }else{
+    total_field = data['expected'] - data['total']
+  }
+  let string =
+  `
+  <td>${category}</td>
+  <td>${data['expected']}</td>
+  <td>${data['total']}</td>
+  <td>${total_field}</td>
+  `;
+  new_row.innerHTML = string;
+  overview_table.appendChild(new_row);
+}
+function remove_overview_row(category){
+  let row_to_remove = document.getElementById(`overview-row-${category}`);
+  row_to_remove.parentNode.removeChild(row_to_remove)
+}
 
 async function getCategories(){
     const res = await fetch('/add_income', {
@@ -411,6 +452,7 @@ function remove_category(element){
 
 function remove_transaction(element){
   console.log(element);
+  console.log("HERE");
   el = element.parentNode.parentNode;
   console.log(el);
   id = el.attributes.id.value;
