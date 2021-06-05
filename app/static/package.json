@@ -10,6 +10,9 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "bulma-switch": "^2.0.0"
+    "@creativebulma/bulma-divider": "^1.1.0",
+    "bulma-switch": "^2.0.0",
+    "install": "^0.13.0",
+    "npm": "^7.14.0"
   }
 }

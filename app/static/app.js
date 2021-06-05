@@ -153,7 +153,8 @@ async function generate_list(get_func,listToAppend){
         //let cat_name = ;
         toggle_object[my_obj['data'][i]['Name']] = {
           "expected": my_obj['data'][i]['Amount'],
-          "total": 0
+          "total": 0,
+          "type": my_obj['data'][i]['Type']
         }
         var list_item = document.createElement('tr');
         let string =
@@ -170,14 +171,14 @@ async function generate_list(get_func,listToAppend){
     else if (listToAppend.getAttribute('id') === 'trans_list'){
         listToAppend.innerHTML = '';
         for(i=0; i<my_obj['data'].length; i++){
+            toggle_object[my_obj['data'][i]['Category']].total+=my_obj['data'][i]['Amount'];
             var list_item = document.createElement('tr');
             var second_item = ''
             if (my_obj['data'][i]['Type'] === 'Income'){
               second_item = 'Outgoing'
-              toggle_object[my_obj['data'][i]['Category']].total+=my_obj['data'][i]['Amount'];
             }else{
               second_item = 'Income'
-              toggle_object[my_obj['data'][i]['Category']].total+=my_obj['data'][i]['Amount']*-1;
+              //toggle_object[my_obj['data'][i]['Category']].total+=my_obj['data'][i]['Amount']*-1;
             };
             transaction_date = moment(new Date(my_obj['data'][i]['Date']).toISOString().split('T')[0]).format("MM/DD/YYYY")
 
@@ -222,7 +223,8 @@ async function generate_list(get_func,listToAppend){
 function generateToggles(data){
   console.log("GENERATE TOGGLE");
   console.log(data.length);
-  toggle_list.innerHTML='';
+  toggle_list_incoming.innerHTML='';
+  toggle_list_outgoing.innerHTML='';
 
   for(i=0;i<data.length;i++){
     new_toggle = document.createElement('div');
@@ -231,12 +233,16 @@ function generateToggles(data){
     console.log(data[i]['Name'])
   toggle_list_string = `
     <div class="field">
-      <input id="switchLarge-${data[i]['id']}" type="checkbox" name="switchLarge-${data[i]['Name']}" class="over-view-switch switch is-large">
+      <input id="switchLarge-${data[i]['id']}" type="checkbox" name="switchLarge-${data[i]['Name']}-${data[i]['Type']}" class="over-view-switch switch is-large">
       <label for="switchLarge-${data[i]['id']}">${data[i]['Name']}</label>
     </div>
   `
   new_toggle.innerHTML = toggle_list_string;
-  toggle_list.appendChild(new_toggle);
+  if(data[i]['Type']==="Income"){
+    toggle_list_incoming.appendChild(new_toggle);
+  }else{
+    toggle_list_outgoing.appendChild(new_toggle);
+  }
 }
 document.querySelectorAll('.over-view-switch').forEach(item => {
   item.addEventListener('click', event => {
@@ -248,7 +254,7 @@ document.querySelectorAll('.over-view-switch').forEach(item => {
     if(switchbox.checked){
       generate_overview_table(category, toggle_object[category])
     }else{
-    remove_overview_row(category)
+      remove_overview_row(category)
   }
   });
 })
@@ -259,19 +265,37 @@ function generate_overview_table(category,data){
   let overview_table = document.getElementById("overview-targets-table-body");
   let new_row = document.createElement("tr");
   new_row.id=`overview-row-${category}`
+  let string = `
+  <td>${category}</td>
+  <td>${data['expected']}</td>
+  <td>${data['total']}</td>
+  `;
   let total_field = 0
   if(data['total'] <= 0){
     total_field = data['total']
   }else{
     total_field = data['expected'] - data['total']
   }
-  let string =
-  `
-  <td>${category}</td>
-  <td>${data['expected']}</td>
-  <td>${data['total']}</td>
-  <td>${total_field}</td>
-  `;
+
+  if(data['type'] === 'Income'){
+    if(data['total'] < data['expected']){
+      total_field = data['expected'] - data['total']
+      string+=`<td class = "has-background-danger-light"><span class="icon"><i class="gg-arrow-long-down-c"></i></span>${total_field}</td>`
+    }else{
+      total_field = (data['total'] - data['expected'] );
+      string+=`<td class = "has-background-primary-light"><span class="icon"><i class="gg-arrow-long-up-r"></i></span>${total_field}</td>`
+    }
+  }else{
+    if(data['total'] > data['expected']){
+      total_field = data['total'] - data['expected']
+      string+=`<td class = "has-background-danger-light"><span class="icon"><i class="gg-arrow-long-up-r"></i></span>${total_field}</td>`
+    }else{
+      total_field = data['expected'] - data['total']
+      string+=`<td class = "has-background-primary-light"><span class="icon-text"><span class="icon"><i class="gg-arrow-long-down-c"></i></span>${total_field}</span></td>`
+
+    }
+  }
+
   new_row.innerHTML = string;
   overview_table.appendChild(new_row);
 }
